@@ -3,17 +3,20 @@ from playwright.sync_api import sync_playwright
 
 app = Flask(__name__)
 
-@app.route('/fetch-html', methods=['POST'])
+@app.route("/fetch-html", methods=["POST"])
 def fetch_html():
     url = request.json.get("url")
     if not url:
         return jsonify({"error": "Missing 'url' parameter"}), 400
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
+        browser = p.chromium.launch(
+            headless=True,
+            executable_path="/opt/render/.cache/ms-playwright/chromium_headless_shell-1169/chrome-linux/headless_shell"
+        )
         page = browser.new_page()
         page.goto(url, timeout=60000)
-        page.wait_for_load_state('networkidle')
+        page.wait_for_load_state("networkidle")
         html = page.content()
         browser.close()
 
