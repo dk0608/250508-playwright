@@ -11,11 +11,20 @@ def fetch_html():
         return jsonify({"error": "Missing 'url' parameter"}), 400
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        page = browser.new_page()
+        # Cloudflare対策：UIあり、ステルスオプション追加
+        browser = p.chromium.launch(
+            headless=False,
+            args=["--disable-blink-features=AutomationControlled"]
+        )
+        # Cloudflare対策：実ブラウザ風のUser-Agentを指定
+        page = browser.new_page(user_agent=(
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/120.0.0.0 Safari/537.36"
+        ))
         page.goto(url, timeout=60000)
-        page.wait_for_load_state("load", timeout=60000)  # ← 変更
-        time.sleep(3)  # ← 保険として3秒待つ（任意で増減可）
+        page.wait_for_load_state("load", timeout=60000)
+        time.sleep(5)  # JS実行やCloudflare認証の待機時間として重要
         html = page.content()
         browser.close()
 
