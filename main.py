@@ -14,7 +14,8 @@ def fetch_html():
         browser = p.chromium.launch(headless=True)
         page = browser.new_page()
         page.goto(url, timeout=60000)
-        page.wait_for_load_state("networkidle", timeout=60000)  # ← ここを修正
+        page.wait_for_load_state("load", timeout=60000)  # ← 変更
+        time.sleep(3)  # ← 保険として3秒待つ（任意で増減可）
         html = page.content()
         browser.close()
 
