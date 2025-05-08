@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from playwright.sync_api import sync_playwright
+import time
 
 app = Flask(__name__)
 
@@ -10,10 +11,10 @@ def fetch_html():
         return jsonify({"error": "Missing 'url' parameter"}), 400
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)  # executable_path を指定せず自動に任せる
+        browser = p.chromium.launch(headless=True)
         page = browser.new_page()
         page.goto(url, timeout=60000)
-        page.wait_for_load_state("networkidle")
+        page.wait_for_load_state("networkidle", timeout=60000)  # ← ここを修正
         html = page.content()
         browser.close()
 
