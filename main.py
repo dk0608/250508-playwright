@@ -10,10 +10,7 @@ def fetch_html():
         return jsonify({"error": "Missing 'url' parameter"}), 400
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(
-            headless=True,
-            executable_path="/opt/render/.cache/ms-playwright/chromium_headless_shell-1169/chrome-linux/headless_shell"
-        )
+        browser = p.chromium.launch(headless=True)  # executable_path を指定せず自動に任せる
         page = browser.new_page()
         page.goto(url, timeout=60000)
         page.wait_for_load_state("networkidle")
